@@ -1,7 +1,7 @@
 #ifndef ALGORITHMS_HPP
 #define ALGORITHMS_HPP
 
-#include "utils.hpp"
+#include "geometry.hpp"
 #include "sample.hpp"
 
 /// @brief k-means++ algorithm
