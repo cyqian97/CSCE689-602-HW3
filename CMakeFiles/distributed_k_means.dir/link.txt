@@ -1,2 +1,0 @@
-/usr/bin/ar qc libdistributed_k_means.a  CMakeFiles/distributed_k_means.dir/src/algorithms.cpp.o
-/usr/bin/ranlib libdistributed_k_means.a

@@ -5,6 +5,7 @@ def plot_res(dirname, data_name, ext):
     plt.figure(1)
     plt.clf()
     X = np.loadtxt(dirname + data_name + ext + '_points.txt')
+    X = X[::100,:]
     centers = np.loadtxt(dirname + data_name + ext + '_centers.txt')
     n_clusters_ = centers.shape[0]
 
@@ -19,7 +20,8 @@ def plot_res(dirname, data_name, ext):
             '^',
             markersize=14,
         )
-        dist_sq += np.sum((X[my_members,0::1]-centers[k,0::1])**2)
+        # print("cluster size: ",np.sum(my_members))
+        dist_sq += np.sum((X[my_members,:2]-centers[k,:2])**2)
 
     plt.title("Estimated distance square sum: %.4e" % dist_sq)
     plt.savefig('res' + ext + '.jpg')

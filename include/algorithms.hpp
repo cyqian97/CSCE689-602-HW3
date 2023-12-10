@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <iostream>
+#include <condition_variable>
+#include <thread>
 
 #include "geometry.hpp"
 #include "sample.hpp"
@@ -26,6 +28,8 @@ void k_means_plus_plus(PointSet &pset, int k, PointSet &centers, double &dist_su
 /// @param l: input oversampling factor
 /// @param centers: output centers
 /// @param dist_sum: output summation of distances from all points to their representive
-void k_means_distributed(PointSet &pset, int k, int l, PointSet &centers, double &dist_sum);
+void k_means_distributed(PointSet &pset, int k, int l, PointSet &centers, double &dist_sum, int _thread_num = 10);
+void thread_central(double &phi, int num_loops);
+void thread_distributed(int thread_id, double &phi, PointSet pset, PointSet &centers, int l, int num_loops);
 
 #endif // ALGORITHMS_HPP

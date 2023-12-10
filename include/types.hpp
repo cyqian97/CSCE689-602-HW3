@@ -14,7 +14,7 @@ struct Point
     int center_id = -1;
 };
 
-typedef list<Point> PointSet;
+typedef vector<Point> PointSet;
 
 
 #endif // TYPES_HPP

@@ -1,4 +1,0 @@
-/root/CSCE689-602-HW3/CMakeFiles/rebuild_cache.dir
-/root/CSCE689-602-HW3/CMakeFiles/edit_cache.dir
-/root/CSCE689-602-HW3/CMakeFiles/main.dir
-/root/CSCE689-602-HW3/CMakeFiles/distributed_k_means.dir

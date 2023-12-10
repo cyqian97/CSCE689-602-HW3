@@ -5,6 +5,11 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
+set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+find_package(Threads REQUIRED)
+
+# add_executable(test test.cpp)
+
 include_directories(
     ${PROJECT_SOURCE_DIR}/include
 )
@@ -18,4 +23,4 @@ add_library(lib
 )
 
 add_executable(main src/main.cpp)
-target_link_libraries(main lib)
+target_link_libraries(main lib Threads::Threads)

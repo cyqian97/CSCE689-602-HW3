@@ -33,5 +33,10 @@ int main()
     write_data(dirname+dataname+"_plus_points.txt",pset);
     write_data(dirname+dataname+"_plus_centers.txt",centers);
 
+    // k-means ||
+    centers = PointSet(); 
+    dist_sum = 0.0;
+    k_means_distributed(pset,center_num,1,centers,dist_sum);
+
 
 }
