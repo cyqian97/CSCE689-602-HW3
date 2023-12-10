@@ -1,3 +1,6 @@
+#ifndef UTILS_HPP
+#define UTILS_HPP
+
 #include <cmath>
 
 #include "types.hpp"
@@ -41,3 +44,4 @@ double dist(Point &p1, PointSet pset, int &id)
     }
 }
 
+#endif // UTILS_HPP
