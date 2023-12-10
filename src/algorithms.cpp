@@ -14,7 +14,7 @@ void lloyd(PointSet &pset, PointSet &centers, double &dist_sum)
 
     while (true)
     {
-        count_loop ++;
+        count_loop++;
         vector<int> center_count(centers.size(), 0);
         dist_sum = 0.0;
         for (auto &p : pset)
@@ -52,4 +52,39 @@ void lloyd(PointSet &pset, PointSet &centers, double &dist_sum)
             }
         }
     }
+}
+
+void k_means_plus_plus(PointSet &pset, int k, PointSet &centers, double &dist_sum)
+{
+    centers = PointSet();
+    list<double> probs(pset.size(), 1.0 / pset.size());
+    for (int i = 0; i < k; i++)
+    {
+        centers.push_back(sample_and_erase(pset, probs));
+        list<double>::iterator it_probs = probs.begin();
+        for (auto &p : pset)
+        {
+            *it_probs = dist(p, centers);
+            it_probs++;
+        }
+        double prob_sum = 0.0;
+        for (auto &prob : probs)
+        {
+            prob_sum += prob;
+        }
+        for (auto &prob : probs)
+        {
+            prob /= prob_sum;
+        }
+    }
+    lloyd(pset,centers,dist_sum);
+}
+
+
+void k_means_distributed(PointSet &pset, int k, int l, PointSet &centers, double &dist_sum)
+{
+    centers = PointSet();
+    list<double> probs(pset.size(), 1.0 / pset.size());
+    
+    
 }

@@ -14,6 +14,7 @@ add_library(lib
     src/algorithms.cpp
     src/geometry.cpp
     src/utils.cpp
+    src/sample.cpp
 )
 
 add_executable(main src/main.cpp)

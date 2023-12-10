@@ -23,8 +23,9 @@ void k_means_plus_plus(PointSet &pset, int k, PointSet &centers, double &dist_su
 /// @brief k-means++ algorithm
 /// @param pset: input point set
 /// @param k: input center number
+/// @param l: input oversampling factor
 /// @param centers: output centers
 /// @param dist_sum: output summation of distances from all points to their representive
-void k_means_(PointSet &pset, int k, PointSet &centers, double &dist_sum);
+void k_means_distributed(PointSet &pset, int k, int l, PointSet &centers, double &dist_sum);
 
 #endif // ALGORITHMS_HPP

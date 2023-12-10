@@ -10,6 +10,8 @@ using namespace std;
 
 bool sample_point(double prob);
 
-PointSet::iterator sample_point_from_set(PointSet pset, list<double> probs);
+PointSet::iterator sample_point_from_set(PointSet &pset, list<double> &probs);
+
+Point sample_and_erase(PointSet &pset, list<double> &probs);
 
 #endif // SAMPLE_HPP
