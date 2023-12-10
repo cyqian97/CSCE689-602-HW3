@@ -3,47 +3,56 @@
 #include <iostream>
 #include <thread>
 
-
- 
 std::condition_variable cv;
-std::mutex cv_m; // This mutex is used for three purposes:
-                 // 1) to synchronize accesses to i
-                 // 2) to synchronize accesses to std::cerr
-                 // 3) for the condition variable cv
+std::mutex mtx; // This mutex is used for three purposes:
+                // 1) to synchronize accesses to i
+                // 2) to synchronize accesses to std::cerr
+                // 3) for the condition variable cv
+
+std::condition_variable cv2;
+
 int i = 0;
- 
+
 void waits()
 {
-    std::unique_lock<std::mutex> lk(cv_m);
-    std::cerr << "Waiting... \n";
-    cv.wait(lk, []{ return i == 1; });
-    std::cerr << "...finished waiting. i == 1\n";
+    {
+        std::unique_lock<std::mutex> lk(mtx);
+        std::cerr << "Central thread: Waiting... \n";
+        cv.wait(lk, []
+                { return i == 3; });
+        std::cerr << "Central thread: Finished merging. i == " << i << "\n";
+    }
+
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    cv2.notify_all();
 }
- 
-void signals()
+
+void signals(int id)
 {
     std::this_thread::sleep_for(std::chrono::seconds(1));
+
     {
-        std::lock_guard<std::mutex> lk(cv_m);
-        std::cerr << "Notifying...\n";
+        std::lock_guard<std::mutex> lk(mtx);
+        i++;
+        std::cerr << "Thread " << id << ": Notifying " << i << std::endl;
     }
-    cv.notify_all();
- 
-    std::this_thread::sleep_for(std::chrono::seconds(1));
- 
+    cv.notify_one();
+
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
     {
-        std::lock_guard<std::mutex> lk(cv_m);
-        i = 1;
-        std::cerr << "Notifying again...\n";
+        std::unique_lock<std::mutex> lk(mtx);
+        std::cerr << "Thread " << id << ": Waiting... \n";
+        cv2.wait(lk);
+        std::cerr << "Thread " << id << ": finished distribution.\n";
     }
-    cv.notify_all();
 }
- 
+
 int main()
 {
-    std::thread t1(waits), t2(waits), t3(waits), t4(signals);
-    t1.join(); 
-    t2.join(); 
+    std::thread t1(signals, 0), t2(signals, 1), t3(signals, 2), t4(waits);
+    t1.join();
+    t2.join();
     t3.join();
     t4.join();
 }
