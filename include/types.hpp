@@ -11,8 +11,10 @@ struct Point
 {
     array<double, 2> coord;
     int weight = 1;
+    int center_id = -1;
 };
 
 typedef list<Point> PointSet;
+
 
 #endif // TYPES_HPP
