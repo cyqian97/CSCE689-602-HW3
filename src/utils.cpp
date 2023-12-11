@@ -47,3 +47,42 @@ int write_data(string filename, PointSet &pset)
     file.close();
     return 0;
 }
+
+int append_data(string filename, vector<double> v)
+{
+    ofstream file;
+    file.open(filename, ios::app);
+    if (!file)
+    {
+        cerr << "ERROR: Unable to open data file: " << filename << "\n";
+        exit(EXIT_FAILURE);
+    }
+    for (auto u : v)
+    {
+        file << setprecision(8) <<u << " ";
+    }
+    file << endl;
+    file.close();
+    return 0;
+}
+
+double mean(vector<double> v)
+{
+    double d;
+    for (auto &u : v)
+    {
+        d += u;
+    }
+    return d / v.size();
+}
+
+double sigma(vector<double> v){
+    double m = mean(v);
+    double d;
+    for (auto &u : v)
+    {
+        d += pow(u-m,2);
+    }
+    return sqrt(d / v.size());
+
+}

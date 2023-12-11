@@ -26,8 +26,8 @@ def plot_res(dirname, data_name, ext):
 
     vor = Voronoi(centers[:,:2])
     voronoi_plot_2d(vor,ax,show_points=False, show_vertices=False)
-    plt.title("$\sum_{x\in X} d^2(x,C)=$ %.4e" % dist_sq)
-    plt.savefig('res' + ext + '.jpg')
+    plt.title("$n=$%d, $\sum_{x\in X} d^2(x,C)=$ %.4e" % (X.shape[0],dist_sq))
+    plt.savefig('results/res' + ext + '.jpg')
 
 plt.figure(1)
 plt.clf()

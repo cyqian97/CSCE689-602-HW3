@@ -154,6 +154,7 @@ void thread_central(double &phi, int num_loops)
             //      << "Central thread: stage 1, sync loop " << i << "\n";
             thread_count = 0;
         }
+        // Important!!! Wait for cv2.wait(lk) to be excuted for all threads, otherwise some threads may fail to be notified
         this_thread::sleep_for(std::chrono::milliseconds(1));
         cv2.notify_all();
 
@@ -168,6 +169,7 @@ void thread_central(double &phi, int num_loops)
         }
         cout << "\t"
              << "Central thread: sync loop " << i << "\n";
+        // Important!!! Wait for cv2.wait(lk) to be excuted for all threads, otherwise some threads may fail to be notified
         this_thread::sleep_for(std::chrono::milliseconds(1));
         cv2.notify_all();
     }
