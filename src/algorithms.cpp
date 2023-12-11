@@ -37,7 +37,8 @@ void lloyd(PointSet &pset, PointSet &centers, double &dist_sum)
             }
             if (is_converge)
             {
-                cout << "Lloyd's Algorithm finished in " << count_loop << " loops." << endl;
+                cout << "\t"
+                     << "Lloyd's Algorithm finished in " << count_loop << " loops." << endl;
                 return;
             }
         }
@@ -69,7 +70,8 @@ void k_means_plus_plus(PointSet &pset, int k, PointSet &centers, double &dist_su
 }
 
 // Vars for distributed alg
-mutex mtx;
+mutex mtx0;
+mutex mtx1;
 mutex mtx2;
 mutex mtx3;
 mutex mtx4;
@@ -83,12 +85,12 @@ void k_means_distributed(PointSet &pset, int k, int l, PointSet &centers, double
     thread_num = _thread_num;
 
     // Sample the first point
-    centers = PointSet();
+    PointSet centers_sample;
     vector<double> probs(pset.size(), 1.0 / pset.size());
-    centers.push_back(sample_point_from_set(pset, probs));
+    centers_sample.push_back(sample_point_from_set(pset, probs));
 
     list<thread> thrds;
-    int num_loops = 5; //log(10 * pset.size());
+    int num_loops = log(10 * pset.size());
 
     // central thread
     double phi = 0.0;
@@ -96,9 +98,9 @@ void k_means_distributed(PointSet &pset, int k, int l, PointSet &centers, double
     thrds.push_back(move(thrd_c));
 
     // distributed threads
-    int num_p_thrd = pset.size() / thread_num;
+    int num_p_thrd = pset.size() / thread_num + 1;
     int start_id = 0;
-    for (int i = 0; i < thread_num - 1; i++)
+    for (int i = 0; i < thread_num - 1; i++) //
     {
         PointSet _pset;
         for (int i = start_id; i < start_id + num_p_thrd; i++)
@@ -106,7 +108,7 @@ void k_means_distributed(PointSet &pset, int k, int l, PointSet &centers, double
             _pset.push_back(pset[i]);
         }
 
-        thread t(thread_distributed, i, ref(phi), _pset, ref(centers), l, num_loops);
+        thread t(thread_distributed, i, ref(phi), _pset, ref(centers_sample), l, num_loops);
         thrds.push_back(move(t));
         start_id += num_p_thrd;
     }
@@ -116,7 +118,7 @@ void k_means_distributed(PointSet &pset, int k, int l, PointSet &centers, double
         {
             _pset.push_back(pset[i]);
         }
-        thread t(thread_distributed, thread_num - 1, ref(phi), _pset, ref(centers), l, num_loops);
+        thread t(thread_distributed, thread_num - 1, ref(phi), _pset, ref(centers_sample), l, num_loops);
         thrds.push_back(move(t));
     }
 
@@ -124,30 +126,49 @@ void k_means_distributed(PointSet &pset, int k, int l, PointSet &centers, double
     {
         t.join();
     }
+    cout << "\t"
+         << "sampled center size: " << centers_sample.size() << endl;
+    for (auto &p : pset)
+    {
+        int i;
+        dist(p, centers_sample, i);
+        centers_sample[i].weight++;
+    }
+    for (auto &c: centers_sample){
+        c.weight--;
+    }
+    k_means_plus_plus(centers_sample, k, centers, dist_sum);
 }
 
 void thread_central(double &phi, int num_loops)
 {
-    cout << "Central thread started\n";
+    cout << "\t"
+         << "Central thread started\n";
     for (int i = 0; i < num_loops; i++)
     {
         {
-            std::unique_lock<std::mutex> lk1(mtx);
-            cv.wait(lk1, []
+            std::unique_lock<std::mutex> lk0(mtx0);
+            cv.wait(lk0, []
                     { return thread_count == thread_num; });
-            cout << "Central thread: sync " << thread_count << " threads.\n";
+            // cout << "\t"
+            //      << "Central thread: stage 1, sync loop " << i << "\n";
             thread_count = 0;
         }
+        this_thread::sleep_for(std::chrono::milliseconds(1));
         cv2.notify_all();
 
         {
-            std::unique_lock<std::mutex> lk1(mtx);
-            cv.wait(lk1, []
+            std::unique_lock<std::mutex> lk0(mtx0);
+            cv.wait(lk0, []
                     { return thread_count == thread_num; });
-            cout << "Central thread: sync " << thread_count << " threads.\n";
+            // cout << "\t"
+            //      << "Central thread: stage 2, sync loop " << i << "\n";
             thread_count = 0;
             phi = 0.0;
         }
+        cout << "\t"
+             << "Central thread: sync loop " << i << "\n";
+        this_thread::sleep_for(std::chrono::milliseconds(1));
         cv2.notify_all();
     }
 }
@@ -169,17 +190,21 @@ void thread_distributed(int thread_id, double &phi, PointSet pset, PointSet &cen
 
         // Update phi
         {
-            std::lock_guard<std::mutex> lk1(mtx);
-            cout << "Thread " << thread_id << " stage 1\n";
+            std::lock_guard<std::mutex> lk1(mtx1);
+            // cout << "\t"
+            //      << "Thread " << thread_id << ": mutex 1\n";
             phi += phi_local;
             thread_count++;
         }
 
         // Sync thread, wait for phi to be fully updated
         cv.notify_one();
+
         {
             std::unique_lock<std::mutex> lk2(mtx2);
             cv2.wait(lk2);
+            // cout << "\t"
+            //      << "Thread " << thread_id << ": mutex 2\n";
         }
 
         // Sample local points
@@ -201,14 +226,18 @@ void thread_distributed(int thread_id, double &phi, PointSet pset, PointSet &cen
             std::unique_lock<std::mutex> lk3(mtx3);
             centers.insert(centers.end(), centers_local.begin(), centers_local.end());
             thread_count++;
+            // cout << "\t"
+            //      << "Thread " << thread_id << ": mutex 3\n";
         }
 
         // Sync threads, wait for centers to be fully updated
         cv.notify_one();
+
         {
             std::unique_lock<std::mutex> lk4(mtx4);
             cv2.wait(lk4);
-            cout << "Thread " << thread_id << ": finished distribution.\n";
+            // cout << "\t"
+            //      << "Thread " << thread_id << ": mutex 4\n";
         }
     }
 }

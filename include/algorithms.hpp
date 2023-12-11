@@ -5,6 +5,7 @@
 #include <iostream>
 #include <condition_variable>
 #include <thread>
+#include <chrono>
 
 #include "geometry.hpp"
 #include "sample.hpp"
