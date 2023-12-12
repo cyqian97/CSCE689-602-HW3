@@ -5,6 +5,25 @@ import seaborn as sns
 sns.set()
 
 dirname = 'results/'
+dirname = 'results/'
+data_name = 'res_time_nc.txt'
+X = np.loadtxt(dirname + data_name)
+Y = np.zeros((10,4))
+for i in range(10):
+    Y[i,:] = np.mean([X[i*6+j,1:5]/X[i*6+j,0] for j in range(6)],0)
+x = np.arange(10,101,10)
+
+fig, ax = plt.subplots()
+
+ax.plot(x, Y[:,0], label='k-means++')
+ax.fill_between(x, Y[:,0] - Y[:,1], Y[:,0] + Y[:,1], alpha=0.2)
+ax.plot(x, Y[:,2], label='k-means||')
+ax.fill_between(x, Y[:,2] - Y[:,3], Y[:,2] + Y[:,3], alpha=0.2)
+ax.legend(loc='upper right')
+ax.set_xlabel("Number of centers $k$")
+ax.set_ylabel("Estimation Ratio of $\sum_{x\in X} d^2(x,C)$")
+ax.set_title("$n=100000$")
+plt.savefig("results/acc.pdf")
 
 # data_name = 'res_acc.txt'
 # X = np.loadtxt(dirname + data_name)

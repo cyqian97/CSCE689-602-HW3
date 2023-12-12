@@ -4,21 +4,21 @@ cmake -DCMAKE_BUILD_TYPE=Release ..
 cmake --build .
 cd ..
 
-RES_NAME="../results/res_time_nt.txt"
-cd build
-rm $RES_NAME
-cd ..
+# RES_NAME="../results/res_time_nt.txt"
+# cd build
+# rm $RES_NAME
+# cd ..
 
-for i in 2 3 4 5 6 7 8 9 10 11 12
-do
-    for j in 0 1 2 3 4 5
-    do
-        python3 scripts/data_generation.py 100000 50
-        cd build
-        ./main $i $RES_NAME
-        cd ..
-    done
-done
+# for i in 2 3 4 5 6 7 8 9 10 11 12
+# do
+#     for j in 0 1 2 3 4 5
+#     do
+#         python3 scripts/data_generation.py 100000 50
+#         cd build
+#         ./main $i $RES_NAME
+#         cd ..
+#     done
+# done
 
 # RES_NAME="../results/res_time_nc.txt"
 # cd build
