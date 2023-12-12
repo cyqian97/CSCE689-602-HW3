@@ -134,7 +134,8 @@ void k_means_distributed(PointSet &pset, int k, int l, PointSet &centers, double
         dist(p, centers_sample, i);
         centers_sample[i].weight++;
     }
-    for (auto &c: centers_sample){
+    for (auto &c : centers_sample)
+    {
         c.weight--;
     }
     k_means_plus_plus(centers_sample, k, centers, dist_sum);
@@ -148,10 +149,12 @@ void thread_central(double &phi, int num_loops)
     {
         {
             std::unique_lock<std::mutex> lk0(mtx0);
+            cout << "\t"
+                 << "Central thread wating\n";
             cv.wait(lk0, []
                     { return thread_count == thread_num; });
-            // cout << "\t"
-            //      << "Central thread: stage 1, sync loop " << i << "\n";
+            cout << "\t"
+                 << "Central thread: stage 1, sync loop " << i << "\n";
             thread_count = 0;
         }
         // Important!!! Wait for cv2.wait(lk) to be excuted for all threads, otherwise some threads may fail to be notified
@@ -162,13 +165,13 @@ void thread_central(double &phi, int num_loops)
             std::unique_lock<std::mutex> lk0(mtx0);
             cv.wait(lk0, []
                     { return thread_count == thread_num; });
-            // cout << "\t"
-            //      << "Central thread: stage 2, sync loop " << i << "\n";
+            cout << "\t"
+                 << "Central thread: stage 2, sync loop " << i << "\n";
             thread_count = 0;
             phi = 0.0;
         }
-        cout << "\t"
-             << "Central thread: sync loop " << i << "\n";
+        // cout << "\t"
+        //      << "Central thread: sync loop " << i << "\n";
         // Important!!! Wait for cv2.wait(lk) to be excuted for all threads, otherwise some threads may fail to be notified
         this_thread::sleep_for(std::chrono::milliseconds(1));
         cv2.notify_all();
@@ -193,10 +196,10 @@ void thread_distributed(int thread_id, double &phi, PointSet pset, PointSet &cen
         // Update phi
         {
             std::lock_guard<std::mutex> lk1(mtx1);
-            // cout << "\t"
-            //      << "Thread " << thread_id << ": mutex 1\n";
             phi += phi_local;
             thread_count++;
+            cout << "\t"
+                 << "Thread " << thread_id << ": mutex 1, count " << thread_count << "\n";
         }
 
         // Sync thread, wait for phi to be fully updated
@@ -205,8 +208,8 @@ void thread_distributed(int thread_id, double &phi, PointSet pset, PointSet &cen
         {
             std::unique_lock<std::mutex> lk2(mtx2);
             cv2.wait(lk2);
-            // cout << "\t"
-            //      << "Thread " << thread_id << ": mutex 2\n";
+            cout << "\t"
+                 << "Thread " << thread_id << ": mutex 2\n";
         }
 
         // Sample local points
@@ -228,8 +231,8 @@ void thread_distributed(int thread_id, double &phi, PointSet pset, PointSet &cen
             std::unique_lock<std::mutex> lk3(mtx3);
             centers.insert(centers.end(), centers_local.begin(), centers_local.end());
             thread_count++;
-            // cout << "\t"
-            //      << "Thread " << thread_id << ": mutex 3\n";
+            cout << "\t"
+                 << "Thread " << thread_id << ": mutex 3, count " << thread_count << "\n";
         }
 
         // Sync threads, wait for centers to be fully updated
@@ -238,8 +241,8 @@ void thread_distributed(int thread_id, double &phi, PointSet pset, PointSet &cen
         {
             std::unique_lock<std::mutex> lk4(mtx4);
             cv2.wait(lk4);
-            // cout << "\t"
-            //      << "Thread " << thread_id << ": mutex 4\n";
+            cout << "\t"
+                 << "Thread " << thread_id << ": mutex 4\n";
         }
     }
 }

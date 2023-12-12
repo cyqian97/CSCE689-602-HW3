@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
 {
     string dirname = "../data/";
     string dataname = "data";
-    string resultname = "../results/res_acc.txt";
+    string resultname = argv[2];
     vector<double>results;
 
     // Read points data
@@ -35,6 +35,8 @@ int main(int argc, char *argv[])
 
     vector<double> dist_sum_plus;
     vector<double> dist_sum_distrib;
+    vector<double> time_plus;
+    vector<double> time_distrib;
     for (int i = 0; i < 10; i++)
     {
         // k-means ++
@@ -49,9 +51,10 @@ int main(int argc, char *argv[])
         std::cout << "\tTotal excution tims: " << duration.count() << " ms" << endl;
         std::cout << "\tdist_sum: " << dist_sum << endl;
         dist_sum_plus.push_back(dist_sum);
+        time_plus.push_back(duration.count());
 
-        write_data(dirname + dataname + "_plus_points.txt", pset);
-        write_data(dirname + dataname + "_plus_centers.txt", centers);
+        // write_data(dirname + dataname + "_plus_points.txt", pset);
+        // write_data(dirname + dataname + "_plus_centers.txt", centers);
 
         // k-means ||
         std::cout << "\n===================\n";
@@ -74,13 +77,18 @@ int main(int argc, char *argv[])
         }
         std::cout << "\tdist_sum: " << dist_sum << endl;
         dist_sum_distrib.push_back(dist_sum);
-        write_data(dirname + dataname + "_distrib_points.txt", pset);
-        write_data(dirname + dataname + "_distrib_centers.txt", centers);
+        time_distrib.push_back(duration.count());
+        // write_data(dirname + dataname + "_distrib_points.txt", pset);
+        // write_data(dirname + dataname + "_distrib_centers.txt", centers);
     }
     
     results.push_back(mean(dist_sum_plus));
     results.push_back(sigma(dist_sum_plus));
     results.push_back(mean(dist_sum_distrib));
     results.push_back(sigma(dist_sum_distrib));
+    results.push_back(mean(time_plus));
+    results.push_back(sigma(time_plus));
+    results.push_back(mean(time_distrib));
+    results.push_back(sigma(time_distrib));
     append_data(resultname,results);
 }
